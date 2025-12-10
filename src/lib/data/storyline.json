@@ -1,0 +1,29 @@
+[
+    {
+        "sequenceNumber": 0,
+        "humanMessage": "Hello, AI!",
+        "delayMs": 500
+    },
+    {
+        "sequenceNumber": 1,
+        "aiMessageOptions": [
+            "Hi there!",
+            "Hello! How can I help?"
+        ],
+        "delayMs": 500
+    },
+    {
+        "sequenceNumber": 3,
+        "humanMessage": "sdiybt",
+        "delayMs": 1000
+    },
+    {
+        "sequenceNumber": 4,
+        "humanMessage": "sdiybt",
+        "delayMs": 1000
+    },
+    {
+        "sequenceNumber": 5,
+        "delayMs": 1000
+    }
+]
