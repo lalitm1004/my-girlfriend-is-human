@@ -8,9 +8,6 @@
     import { Button } from "bits-ui";
 
     const storyline = getStoryline()!;
-    const maxSequenceNumber = Math.max(
-        ...storyline.map((e) => e.sequenceNumber),
-    );
 
     let currentGameState = $state<GameState | null>(null);
     let currentAiOptions = $state<string[]>([]);
@@ -26,10 +23,8 @@
 
     $effect(() => {
         if (currentGameState === null) {
-            progressGameplay(0);
+            progressGameplay(100);
         }
-
-        handleGameStateUpdate();
     });
 
     const progressGameplay = async (
@@ -52,23 +47,28 @@
             chosenOptionIndex,
         );
 
+        // Set state FIRST
+        GameStateStore.set(newState);
+
+        // Then do delay if needed
         if (newState.delayMs !== null && newState.delayMs > 0) {
             await sleep(newState.delayMs);
         }
 
-        GameStateStore.set(newState);
+        // After delay, handle what comes next
+        handleAfterDelay(sequenceNumber, chosenOptionIndex);
     };
 
-    const handleGameStateUpdate = () => {
-        if (!currentGameState) return;
-
-        const { currentSequenceNumber } = currentGameState;
+    const handleAfterDelay = (
+        sequenceNumber: number,
+        chosenOptionIndex?: number,
+    ) => {
         const entry = storyline.find(
-            (e) => e.sequenceNumber === currentSequenceNumber,
+            (e) => e.sequenceNumber === sequenceNumber,
         );
 
         if (!entry) {
-            // Should be handled by progressGameplay, but just in case
+            IsGameOver.set(true);
             return;
         }
 
@@ -77,10 +77,33 @@
             return;
         }
 
-        if (entry.aiMessageOptions && entry.aiMessageOptions.length > 0) {
+        // If this was an AI response (choice was made), progress to next sequence
+        if (typeof chosenOptionIndex === "number" && entry.aiMessageOptions) {
+            let nextSeq = sequenceNumber + 1;
+            if (
+                entry.aiMessageOptionsNextSequenceNumbers &&
+                entry.aiMessageOptionsNextSequenceNumbers[chosenOptionIndex] !==
+                    undefined
+            ) {
+                nextSeq =
+                    entry.aiMessageOptionsNextSequenceNumbers[
+                        chosenOptionIndex
+                    ];
+            } else if (typeof entry.nextSequenceNumber === "number") {
+                nextSeq = entry.nextSequenceNumber;
+            }
+
+            // Clear AI options and progress to next sequence
+            currentAiOptions = [];
+            progressGameplay(nextSeq);
+        }
+        // If this was a normal entry with AI options, show them
+        else if (entry.aiMessageOptions && entry.aiMessageOptions.length > 0) {
             currentAiOptions = entry.aiMessageOptions;
-        } else {
-            let nextSeq = currentSequenceNumber + 1;
+        }
+        // If this was a normal entry without AI options, auto-progress
+        else {
+            let nextSeq = sequenceNumber + 1;
             if (typeof entry.nextSequenceNumber === "number") {
                 nextSeq = entry.nextSequenceNumber;
             }
@@ -96,33 +119,23 @@
             (e) => e.sequenceNumber === currentSequenceNumber,
         );
 
-        let nextSeq = currentSequenceNumber + 1;
-        if (entry) {
-            if (
-                entry.aiMessageOptionsNextSequenceNumbers &&
-                entry.aiMessageOptionsNextSequenceNumbers[optionIndex] !==
-                    undefined
-            ) {
-                nextSeq =
-                    entry.aiMessageOptionsNextSequenceNumbers[optionIndex];
-            } else if (typeof entry.nextSequenceNumber === "number") {
-                nextSeq = entry.nextSequenceNumber;
-            }
-        }
+        if (!entry?.aiMessageOptions) return;
 
+        // Show the AI response at the CURRENT sequence
+        progressGameplay(currentSequenceNumber, optionIndex);
         currentAiOptions = [];
-        progressGameplay(nextSeq, optionIndex);
     };
 </script>
 
-<div class={`h-full w-full p-2 border-2 border-neutral-800 rounded-md`}>
+<div class={`h-full w-full p-2 border-2 border-pink-300 rounded-md`}>
     {#if currentAiOptions.length > 0}
-        <div>
-            <p>Choose your repsonse:</p>
+        <div class={`flex flex-col gap-2`}>
+            <p class={`text-3xl`}>Choose your response:</p>
+
             <div class={`flex flex-col gap-2`}>
                 {#each currentAiOptions as option, index}
                     <Button.Root
-                        class={`border-2 border-neutral-800 rounded-md`}
+                        class={`p-2 hover:bg-pink-100/50 border-2 border-pink-300 rounded-md transition-colors duration-200 cursor-pointer`}
                         onclick={() => handleOptionClick(index)}
                     >
                         {option}
