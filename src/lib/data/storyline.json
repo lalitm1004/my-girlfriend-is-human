@@ -2,7 +2,14 @@
     {
         "sequenceNumber": 0,
         "humanMessage": "Hello, AI!",
-        "delayMs": 500
+        "delayMs": 500,
+        "nextSequenceNumber": 1,
+        "files": [
+            {
+                "name": "hello.txt",
+                "content": "Hello world! This is a file."
+            }
+        ]
     },
     {
         "sequenceNumber": 1,
@@ -10,20 +17,110 @@
             "Hi there!",
             "Hello! How can I help?"
         ],
-        "delayMs": 500
+        "aiMessageOptionsNextSequenceNumbers": [
+            2,
+            7
+        ],
+        "delayMs": 1000,
+        "files": [
+            {
+                "name": "hello.txt",
+                "content": "Hello world! This is a file."
+            }
+        ]
+    },
+    {
+        "sequenceNumber": 2,
+        "delayMs": 100,
+        "nextSequenceNumber": 3,
+        "files": [
+            {
+                "name": "hello.txt",
+                "content": "Hello world! This is a file."
+            }
+        ]
     },
     {
         "sequenceNumber": 3,
-        "humanMessage": "sdiybt",
-        "delayMs": 1000
+        "humanMessage": "You chose the casual greeting.",
+        "delayMs": 1000,
+        "nextSequenceNumber": 4,
+        "files": [
+            {
+                "name": "hello.txt",
+                "content": "Hello world! This is a file."
+            }
+        ]
     },
     {
         "sequenceNumber": 4,
-        "humanMessage": "sdiybt",
-        "delayMs": 1000
+        "delayMs": 1000,
+        "aiMessageOptions": [
+            "Hi there! Pt2",
+            "Hello! How can I help? Pt2"
+        ],
+        "aiMessageOptionsNextSequenceNumbers": [
+            5,
+            5
+        ],
+        "nextSequenceNumber": 5,
+        "files": [
+            {
+                "name": "hello.txt",
+                "content": "Hello world! This is a file."
+            }
+        ]
     },
     {
         "sequenceNumber": 5,
-        "delayMs": 1000
+        "delayMs": 100,
+        "nextSequenceNumber": 6,
+        "files": [
+            {
+                "name": "hello.txt",
+                "content": "Hello world! This is a file."
+            }
+        ]
+    },
+    {
+        "sequenceNumber": 6,
+        "humanMessage": "You chose the casual greeting.",
+        "delayMs": 1000,
+        "nextSequenceNumber": 100,
+        "files": [
+            {
+                "name": "hello.txt",
+                "content": "Hello world! This is a file."
+            }
+        ]
+    },
+    {
+        "sequenceNumber": 7,
+        "delayMs": 100,
+        "nextSequenceNumber": 8,
+        "files": [
+            {
+                "name": "hello.txt",
+                "content": "Hello world! This is a file."
+            }
+        ]
+    },
+    {
+        "sequenceNumber": 8,
+        "humanMessage": "You chose the formal greeting.",
+        "logMessage": "[WARNING] file deleted",
+        "delayMs": 1000,
+        "nextSequenceNumber": 100
+    },
+    {
+        "sequenceNumber": 100,
+        "humanMessage": "We are back together.",
+        "delayMs": 1000,
+        "nextSequenceNumber": 1000
+    },
+    {
+        "sequenceNumber": 1000,
+        "delayMs": 1000,
+        "isTerminalEntry": true
     }
 ]

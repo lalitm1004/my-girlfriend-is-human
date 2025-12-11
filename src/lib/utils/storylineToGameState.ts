@@ -9,9 +9,17 @@ export const storylineToGameState = (
 ): GameState => {
 
     const messageHistory = previous ? [...previous.messageHistory] : [];
-    const existingFiles = previous ? [...previous.files] : [];
+    // Files are no longer accumulated. They are replaced by the current entry's files.
+    let currentFiles: GameState['files'] = [];
 
-    const previousEntry = storyline.find(e => e.sequenceNumber === currentSequenceNumber - 1);
+    const visitedSequenceNumbers = previous ? [...previous.visitedSequenceNumbers] : [];
+    visitedSequenceNumbers.push(currentSequenceNumber);
+
+    let previousEntry = null;
+    if (previous && previous.visitedSequenceNumbers.length > 0) {
+        const lastSeq = previous.visitedSequenceNumbers[previous.visitedSequenceNumbers.length - 1];
+        previousEntry = storyline.find(e => e.sequenceNumber === lastSeq);
+    }
 
     if (previousEntry && previousEntry.aiMessageOptions && typeof chosenAiOptionIndex === 'number') {
         const msg = previousEntry.aiMessageOptions[chosenAiOptionIndex];
@@ -44,34 +52,15 @@ export const storylineToGameState = (
         }
 
         if (entry.files) {
-            for (const f of entry.files) {
-                const idx = existingFiles.findIndex(x => x.name === f.name);
-                if (idx !== -1) {
-                    existingFiles[idx] = {
-                        sequenceNumber: entry.sequenceNumber,
-                        name: f.name,
-                        content: f.content,
-                    };
-                } else {
-                    existingFiles.push({
-                        sequenceNumber: entry.sequenceNumber,
-                        name: f.name,
-                        content: f.content,
-                    });
-                }
-            }
+            currentFiles = entry.files.map(f => ({
+                sequenceNumber: entry.sequenceNumber,
+                name: f.name,
+                content: f.content,
+            }));
         }
     }
 
-    messageHistory.sort((a, b) => {
-        if (a.sequenceNumber !== b.sequenceNumber) {
-            return a.sequenceNumber - b.sequenceNumber;
-        }
-        const order = { human: 0, log: 1, ai: 2 };
-        return order[a.role] - order[b.role];
-    });
-
-    existingFiles.sort((a, b) => {
+    currentFiles.sort((a, b) => {
         if (a.name < b.name) return -1;
         if (a.name > b.name) return 1;
         return 0;
@@ -85,6 +74,7 @@ export const storylineToGameState = (
         currentSequenceNumber,
         delayMs,
         messageHistory,
-        files: existingFiles,
+        files: currentFiles,
+        visitedSequenceNumbers,
     };
 };

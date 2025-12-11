@@ -13,5 +13,6 @@ export const GameStateSchema = z.object({
         name: z.string(),
         content: z.string(),
     })),
+    visitedSequenceNumbers: z.array(z.number()),
 });
 export type GameState = z.infer<typeof GameStateSchema>;

@@ -10,6 +10,9 @@ export const StorylineEntrySchema = z.object({
         name: z.string(),
         content: z.string(),
     })).optional(),
+    nextSequenceNumber: z.number().optional(),
+    aiMessageOptionsNextSequenceNumbers: z.array(z.number()).optional(),
+    isTerminalEntry: z.boolean().default(false),
 });
 export type StorylineEntry = z.infer<typeof StorylineEntrySchema>;
 

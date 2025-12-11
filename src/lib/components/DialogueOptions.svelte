@@ -36,7 +36,10 @@
         sequenceNumber: number,
         chosenOptionIndex?: number,
     ) => {
-        if (sequenceNumber > maxSequenceNumber) {
+        const entry = storyline.find(
+            (e) => e.sequenceNumber === sequenceNumber,
+        );
+        if (!entry) {
             IsGameOver.set(true);
             return;
         }
@@ -65,28 +68,50 @@
         );
 
         if (!entry) {
-            if (currentSequenceNumber <= maxSequenceNumber) {
-                progressGameplay(currentSequenceNumber + 1);
-            }
+            // Should be handled by progressGameplay, but just in case
+            return;
+        }
+
+        if (entry.isTerminalEntry) {
+            IsGameOver.set(true);
             return;
         }
 
         if (entry.aiMessageOptions && entry.aiMessageOptions.length > 0) {
             currentAiOptions = entry.aiMessageOptions;
         } else {
-            progressGameplay(currentSequenceNumber + 1);
+            let nextSeq = currentSequenceNumber + 1;
+            if (typeof entry.nextSequenceNumber === "number") {
+                nextSeq = entry.nextSequenceNumber;
+            }
+            progressGameplay(nextSeq);
         }
     };
 
     const handleOptionClick = (optionIndex: number) => {
         if (!currentGameState) return;
 
-        const nextSequence = currentGameState.currentSequenceNumber + 1;
+        const { currentSequenceNumber } = currentGameState;
+        const entry = storyline.find(
+            (e) => e.sequenceNumber === currentSequenceNumber,
+        );
 
-        if (nextSequence <= maxSequenceNumber) {
-            currentAiOptions = [];
-            progressGameplay(nextSequence, optionIndex);
+        let nextSeq = currentSequenceNumber + 1;
+        if (entry) {
+            if (
+                entry.aiMessageOptionsNextSequenceNumbers &&
+                entry.aiMessageOptionsNextSequenceNumbers[optionIndex] !==
+                    undefined
+            ) {
+                nextSeq =
+                    entry.aiMessageOptionsNextSequenceNumbers[optionIndex];
+            } else if (typeof entry.nextSequenceNumber === "number") {
+                nextSeq = entry.nextSequenceNumber;
+            }
         }
+
+        currentAiOptions = [];
+        progressGameplay(nextSeq, optionIndex);
     };
 </script>
 
